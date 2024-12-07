@@ -568,18 +568,18 @@ plt.tight_layout()
 plt.show()
 ```
 
-Intro
+Intro: 
 Wildfires are among the most destructive natural disasters in the U.S., with California experiencing the greatest impact. In 2021, the state accounted for 40% of all burned acres nationwide and had nearly two million properties at risk of wildfire damage—three times more than the next highest state. The rising frequency and severity of wildfires, driven by climate change, droughts, and urban expansion into fire-prone areas, highlight the urgent need to address wildfire risks. 
 
-Research question, approach and coding
+Research question, approach and coding: 
 Our study tries to answer the question: "How does the degree of urbanization in areas affected by wildfires relate to the magnitude of property damage? This paper uses data from 2020 to 2023, which allows for analysis of seasonal changes in wildfire incidents. Using cities as a unit of analysis, we divided the cities into urban, suburban, and rural areas based on the population density. The findings of this study offer valuable guidance for tailoring wildfire prevention and response strategies to the unique needs of different regions. To answer this research question, we first cleaned and integrated our three datasets. We standardized geographic names by removing redundant text, added a "Geographic Type" column to classify cities based on their population, and merged datasets to link wildfire incidents with urbanization levels. Using Shiny App, we created dynamic visualizations and heatmaps to highlight trends and spatial patterns. We encountered a few challenges during the process. One was ensuring that the geographic classifications were accurate, because relying only on population may oversimplify the complexities of urbanization. Second, merging datasets required significant effort to align different formats and resolve inconsistencies in naming conventions. Despite these challenges, our approach provided a robust framework for analyzing wildfire impacts.
 
-Data and methodology
+Data and methodology: 
 We use three data sets in this research. The first one is the 2020 U.S. Census, which provides detailed population data at the city level. It allows for the classification of cities into urban, suburban, and rural categories based on population density. The second dataset is the incident data from the Cal Fire report (mapdataall.csv), which contains incident data related to wildfires. Finally, we use the Cal fire inspection data. This dataset contains the fire damage level with geographic information for us to analyze. 
  
       
 
-Static plots 
+Static plots: 
 1.	Pie Chart: Geographic Breakdown of California Cities
 This chart illustrates the distribution of California cities by geographic type. Rural areas dominate, making up 57.2% of cities, followed by suburban areas at 28.9%, and urban areas, which represent only 13.9% of the total.
 2.	Bar Chart: Wildfire Frequency by Geographic Type
@@ -593,16 +593,16 @@ Similar to the previous chart, this one focuses on 2022 and shows a similar patt
 6.	Bar: Fire Damage Counts by Geographic Type and Damage Level (2020-2023 Total)
 Aggregating data from 2020 to 2023, this chart provides a comprehensive overview of damage counts. Urban areas again dominate the severe damage categories, with suburban areas following and rural regions experiencing the least damage overall.
 
-Shiny App
-	Our Shiny App presents a dynamic heatmap of California wildfire damage categorized by geographic type. Users can filter by damage levels and urbanization types to explore patterns interactively. For this study, we focused on the "destroyed" damage level, represented by red dots. The map reveals that "destroyed" damage in suburban areas is more geographically dispersed, while in urban areas, it is concentrated in specific high-risk locations. This visualization helps illustrate the distinct impact of wildfires across different regions.
+Shiny App: 
+Our Shiny App presents a dynamic heatmap of California wildfire damage categorized by geographic type. Users can filter by damage levels and urbanization types to explore patterns interactively. For this study, we focused on the "destroyed" damage level, represented by red dots. The map reveals that "destroyed" damage in suburban areas is more geographically dispersed, while in urban areas, it is concentrated in specific high-risk locations. This visualization helps illustrate the distinct impact of wildfires across different regions.
 
-Policy implications
+Policy implications: 
 To address wildfire risks effectively, we recommend that for urban areas, the government should focus resources on high-risk zones with severe damage, implementing advanced fire suppression systems and strict building codes to prevent catastrophic losses. Community awareness campaigns should educate urban residents on fire prevention, safe evacuation, and early reporting to reduce wildfire ignition and spread. For suburban areas, land use planning must prioritize vegetation management around suburban developments and regulate construction in vulnerable areas. The government should also establish local volunteer firefighting teams equipped with wildfire suppression tools to enhance community resilience. For rural areas, the government should promote fire-resistant agriculture, such as controlled grazing or fire-resistant crops to create natural barriers to mitigate fire spread.
 
-Limitations
+Limitations: 
 This research provides valuable insights into wildfire property damage across different levels of urbanization but has several limitations. First, the classification of geographic areas into rural, suburban, and urban categories based solely on population density may oversimplify the complexity of urbanization. Factors such as infrastructure, land use, and economic activity, which also influence wildfire vulnerability and damage, are not accounted for in this analysis. Second, the broad fire damage categories (e.g., "Minor" for 10–25% damage) limit the precision of analysis and resource allocation. Third, the 2020–2023 timeframe may not capture long-term wildfire trends, therefore limiting the findings' generalizability. Finally, focusing solely on property damage neglects broader wildfire impacts, such as environmental, public health, and social consequences. Future research should address these gaps for more comprehensive insights.
 
-Directions for future work
+Directions for future work: 
 Future work should aim to address the limitations of this study by incorporating more nuanced measures of urbanization, including infrastructure and land use, to capture a comprehensive picture of wildfire vulnerability. Expanding the analysis to include longer time frames would help identify broader trends and improve the generalizability of findings. Additionally, integrating data on the social, economic, and ecological impacts of wildfires—such as public health effects, environmental degradation, and community displacement—would provide a more holistic understanding of wildfire consequences and inform more effective, multidimensional policy strategies.
 
 Reference: 
