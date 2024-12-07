@@ -9,13 +9,11 @@ damage_order = ["No Damage", "Affected (1-9%)", "Minor (10-25%)", "Major (26-50%
 heatmap_data['* Damage'] = pd.Categorical(heatmap_data['* Damage'], categories=damage_order, ordered=True)
 custom_colors = ['lightgray', 'yellowgreen', 'gold', 'orange', 'red']
 
-# Define the UI
 app_ui = ui.page_fluid(
     ui.panel_title("Damage Distribution by Geographic Type"),
     ui.output_plot("stacked_bar_chart")
 )
 
-# Define the Server
 def server(input, output, session):
     @render.plot
     def stacked_bar_chart():
@@ -40,5 +38,4 @@ def server(input, output, session):
 
     output.stacked_bar_chart = stacked_bar_chart
 
-# Define the app
 app = App(app_ui, server)
