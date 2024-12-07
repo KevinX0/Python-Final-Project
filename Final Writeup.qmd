@@ -1,0 +1,613 @@
+---
+title: "Final Project: Writeup"
+author: "Jae Hu (jianinghu0408), Duoshu Xu (KevinX0), Regina Hou (Reginahk), Section 3"
+format: 
+  pdf:
+    keep-tex: true
+    include-in-header: 
+       text: |
+         \usepackage{fvextra}
+         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+include-before-body:
+  text: |
+    \RecustomVerbatimEnvironment{verbatim}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaksymbolleft={},
+      breaklines
+    }
+output:
+  echo: false
+  eval: true 
+---
+---
+
+```{python}
+#| echo: false
+#| eval: true
+import pandas as pd
+import numpy as np
+import altair as alt
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+```{python}
+#| echo: false
+#| eval: true
+file_path = '/Users/kevinxu/Desktop/Final Project Raw Data/mapdataall.csv'
+wildfire_data = pd.read_csv(file_path)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+file_path = '/Users/kevinxu/Desktop/Final Project Data Cleaning/Census data.xlsx'
+census_data = pd.read_excel(file_path)
+```
+
+# Data cleaning and reshaping
+```{python}
+#| echo: false
+#| eval: true
+census_data['Total Population'] = pd.to_numeric(
+    census_data['Total Population'], errors='coerce')
+
+
+def classify_geographic_type(population):
+    if population > 50000:
+        return "Urban"
+    elif 5000 <= population <= 50000:
+        return "Suburban"
+    else:
+        return "Rural"
+
+
+census_data['geographic type'] = census_data['Total Population'].apply(
+    classify_geographic_type)
+
+output_file_path = '/Users/kevinxu/Desktop/Final Project Raw Data/Census_with_types.csv'
+
+census_data.to_csv(output_file_path, index=False)
+```
+
+# pie chart (done by Jae Hu)
+```{python}
+#| echo: false
+#| eval: true
+# Load the modified Census data
+file_path = '/Users/kevinxu/Desktop/Final Project Raw Data/Census_with_types.csv'
+census_data = pd.read_csv(file_path)
+
+# Count the number of cities in each geographic type
+geo_counts = census_data['geographic type'].value_counts()
+
+# Define a custom autopct function to add both percentages and counts
+def autopct_with_counts(pct):
+    count = int(round(pct * geo_counts.sum() / 100.0))
+    return f'{pct:.1f}%\n({count})'  
+
+# Plot the pie chart
+plt.figure(figsize=(8, 8))
+colors = ["lightcyan", "powderblue", "cadetblue"]  
+geo_counts.plot.pie(
+    autopct=autopct_with_counts,  
+    colors=colors,
+    startangle=90,
+    labels=geo_counts.index,  
+    wedgeprops={"edgecolor": "black"} 
+)
+plt.title("Distribution of Rural, Suburban, and Urban Cities in California", fontsize=14)
+
+plt.ylabel("") 
+plt.show()
+```
+
+# Wildfire Frequency bar chart (done by Duoshu Xu)
+```{python}
+#| echo: false
+#| eval: true
+wildfire_data_path = '/Users/kevinxu/Desktop/Final Project Raw Data/mapdataall.csv'
+census_data_path = '/Users/kevinxu/Desktop/Final Project Raw Data/Census_with_types.csv'
+wildfire_data = pd.read_csv(wildfire_data_path)
+census_data = pd.read_csv(census_data_path)
+
+
+def standardize_county_name(name):
+    if pd.isna(name):
+        return None
+    return name.split(",")[0].strip()
+
+
+wildfire_data['incident_county_cleaned'] = wildfire_data['incident_county'].apply(
+    standardize_county_name)
+census_data['Geography_cleaned'] = census_data['Geography'].str.replace(
+    " County", "", regex=False)
+
+wildfire_with_geo_type = wildfire_data.merge(
+    census_data[['Geography_cleaned', 'geographic type']],
+    left_on='incident_county_cleaned',
+    right_on='Geography_cleaned',
+    how='left'
+)
+
+wildfire_counts = wildfire_with_geo_type['geographic type'].value_counts(
+).reset_index()
+wildfire_counts.columns = ['Geographic Type', 'Number of Wildfires']
+
+print(wildfire_counts)
+plt.figure(figsize=(10, 6))
+plt.bar(
+    wildfire_counts['Geographic Type'],
+    wildfire_counts['Number of Wildfires'],
+    color='cadetblue'
+)
+plt.title("Wildfire Frequency by Geographic Type", fontsize=16)
+plt.xlabel("Geographic Type", fontsize=14)
+plt.ylabel("Number of Wildfires", fontsize=14)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+
+```{python}
+#| echo: false
+#| eval: true
+population_data_path = '/Users/kevinxu/Desktop/Final Project Raw Data/Census_with_types.csv'
+firedamage_data_path = '/Users/kevinxu/Desktop/Final Project Raw Data/POSTFIRE_MASTER_DATA_SHARE_2064760709534146017.csv'
+population_data = pd.read_csv(population_data_path)
+firedamage_data = pd.read_csv(firedamage_data_path)
+
+population_data.head(), firedamage_data.head()
+population_data["Geography"] = (
+    population_data["Geography"]
+    .str.replace(r"\s*City\s*$", "", regex=True, case=False)
+    .str.strip()
+)
+
+print(population_data["Geography"].unique()[:10])
+population_data.head()
+```
+
+```{python}
+#| echo: false
+#| eval: true
+firedamage_data["* City"] = (
+    firedamage_data["* City"]
+    # Removes "City" regardless of case
+    .str.replace(r"\s*City\s*$", "", regex=True, case=False)
+    .str.strip()  # Removes leading/trailing whitespace
+)
+
+# Verify the changes
+# Display unique values to confirm "City" is removed
+firedamage_data["* City"].unique()[:10]
+firedamage_data.head()
+```
+
+```{python}
+#| echo: false
+#| eval: true
+# Remove rows where Geography or * City contains "County" in either dataset
+population_data_cleaned = population_data[~population_data["Geography"].str.contains(
+    "County", case=False, na=False)]
+firedamage_data_cleaned = firedamage_data[~firedamage_data["* City"].str.contains(
+    "County", case=False, na=False)]
+
+# Standardize column names for merging
+population_data_cleaned = population_data_cleaned.rename(
+    columns={"Geography": "City"})
+firedamage_data_cleaned = firedamage_data_cleaned.rename(
+    columns={"* City": "City"})
+
+# Merge the datasets based on the City column
+merged_data = pd.merge(
+    firedamage_data_cleaned,
+    population_data_cleaned,
+    on="City",
+    how="inner"
+)
+merged_data.head()
+```
+
+# bar plot of 2020 (done by Regina Hou)
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2020 data only after merging
+merged_data["Year"] = pd.to_datetime(
+    merged_data["Incident Start Date"], errors="coerce").dt.year
+merged_data_2020 = merged_data[merged_data["Year"] == 2020]
+```
+
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2020 data only after merging and exclude "No Damage"
+from matplotlib.lines import Line2D
+merged_data["Year"] = pd.to_datetime(
+    merged_data["Incident Start Date"], errors="coerce").dt.year
+merged_data_2020 = merged_data[
+    (merged_data["Year"] == 2020) &
+    (merged_data["* Damage"] != "No Damage")
+]
+
+# Group data by geographic type and damage level, and count occurrences
+damage_counts_2020 = (
+    merged_data_2020.groupby(["geographic type", "* Damage"])
+    .size()
+    .reset_index(name="Count")
+)
+
+# Define the order of damage levels
+damage_order = [
+    "Affected (1-9%)",
+    "Minor (10-25%)",
+    "Major (26-50%)",
+    "Destroyed (>50%)"
+]
+
+# Update damage levels for sorting and visualization
+damage_counts_2020["* Damage"] = pd.Categorical(
+    damage_counts_2020["* Damage"], categories=damage_order, ordered=True
+)
+
+# Sort the data by Geographic Type and Damage Level
+damage_counts_2020 = damage_counts_2020.sort_values(
+    by=["geographic type", "* Damage"])
+
+# Create a new x-axis label with rearranged categories
+damage_counts_2020["Label"] = (
+    damage_counts_2020["geographic type"] + " + " +
+    damage_counts_2020["* Damage"].astype(str)
+)
+
+# Assign colors based on geographic type
+colors = {"Rural": "green", "Suburban": "orange", "Urban": "red"}
+damage_counts_2020["Bar Color"] = damage_counts_2020["geographic type"].map(
+    colors)
+
+plt.figure(figsize=(14, 8))
+bars = plt.bar(
+    damage_counts_2020["Label"],
+    damage_counts_2020["Count"],
+    color=damage_counts_2020["Bar Color"],
+)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.5,
+             int(yval), ha="center", va="bottom", fontsize=10)
+
+plt.title("Fire Damage Counts by Geographic Type and Damage Level (2020, Excluding No Damage)", fontsize=16)
+plt.xlabel("Geographic Type + Damage Level", fontsize=12)
+plt.ylabel("Counts", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=10)
+
+# Add a legend for the bar colors
+
+legend_elements = [
+    Line2D([0], [0], color="green", lw=6, label="Rural"),
+    Line2D([0], [0], color="orange", lw=6, label="Suburban"),
+    Line2D([0], [0], color="red", lw=6, label="Urban"),
+]
+
+plt.legend(handles=legend_elements, title="Geographic Type",
+           loc="upper right", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+```
+
+# plot of 2021 (done by Regina Hou)
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2021 data only after merging
+merged_data_2021 = merged_data[
+    (merged_data["Year"] == 2021) & 
+    (~merged_data["* Damage"].isna()) & 
+    (~merged_data["geographic type"].isna())
+].copy()
+
+# Verify that there are no NaN values remaining
+print("NaN values in geographic type:", merged_data_2021["geographic type"].isna().sum())
+print("NaN values in * Damage:", merged_data_2021["* Damage"].isna().sum())
+
+```
+
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2021 data only after merging and exclude "No Damage"
+merged_data_2021 = merged_data[
+    (merged_data["Year"] == 2021) &
+    (merged_data["* Damage"] != "No Damage")
+]
+
+# Group data by geographic type and damage level, and count occurrences
+damage_counts_2021 = (
+    merged_data_2021.groupby(["geographic type", "* Damage"])
+    .size()
+    .reset_index(name="Count")
+)
+
+# Define the order of damage levels
+damage_order = [
+    "Affected (1-9%)", 
+    "Minor (10-25%)", 
+    "Major (26-50%)", 
+    "Destroyed (>50%)"
+]
+
+# Update damage levels for sorting and visualization
+damage_counts_2021["* Damage"] = pd.Categorical(
+    damage_counts_2021["* Damage"], categories=damage_order, ordered=True
+)
+
+# Sort the data by Geographic Type and Damage Level
+damage_counts_2021 = damage_counts_2021.sort_values(by=["geographic type", "* Damage"])
+
+# Create a new x-axis label with rearranged categories
+damage_counts_2021["Label"] = (
+    damage_counts_2021["geographic type"] + " + " + damage_counts_2021["* Damage"].astype(str)
+)
+
+# Assign colors based on geographic type
+colors = {"Rural": "green", "Suburban": "orange", "Urban": "red"}
+damage_counts_2021["Bar Color"] = damage_counts_2021["geographic type"].map(colors)
+
+plt.figure(figsize=(14, 8))
+bars = plt.bar(
+    damage_counts_2021["Label"],
+    damage_counts_2021["Count"],
+    color=damage_counts_2021["Bar Color"],
+)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.5, int(yval), ha="center", va="bottom", fontsize=10)
+
+plt.title("Fire Damage Counts by Geographic Type and Damage Level (2021, Excluding No Damage)", fontsize=16)
+plt.xlabel("Geographic Type + Damage Level", fontsize=12)
+plt.ylabel("Counts", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=10)
+
+# Add a legend for the bar colors
+from matplotlib.lines import Line2D
+
+legend_elements = [
+    Line2D([0], [0], color="green", lw=6, label="Rural"),
+    Line2D([0], [0], color="orange", lw=6, label="Suburban"),
+    Line2D([0], [0], color="red", lw=6, label="Urban"),
+]
+
+plt.legend(handles=legend_elements, title="Geographic Type", loc="upper right", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+```
+
+# plot of 2022 (done by Regina Hou)
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2022 data only after merging
+merged_data["Year"] = pd.to_datetime(merged_data["Incident Start Date"], errors="coerce").dt.year
+merged_data_2022 = merged_data[merged_data["Year"] == 2022]
+```
+
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2022 data only after merging and exclude "No Damage"
+merged_data_2022 = merged_data[
+    (merged_data["Year"] == 2022) &
+    (merged_data["* Damage"] != "No Damage")
+]
+
+# Group data by geographic type and damage level, and count occurrences
+damage_counts_2022 = (
+    merged_data_2022.groupby(["geographic type", "* Damage"])
+    .size()
+    .reset_index(name="Count")
+)
+
+# Define the order of damage levels
+damage_order = [
+    "Affected (1-9%)", 
+    "Minor (10-25%)", 
+    "Major (26-50%)", 
+    "Destroyed (>50%)"
+]
+
+# Update damage levels for sorting and visualization
+damage_counts_2022["* Damage"] = pd.Categorical(
+    damage_counts_2022["* Damage"], categories=damage_order, ordered=True
+)
+
+# Sort the data by Geographic Type and Damage Level
+damage_counts_2022 = damage_counts_2022.sort_values(by=["geographic type", "* Damage"])
+
+# Create a new x-axis label with rearranged categories
+damage_counts_2022["Label"] = (
+    damage_counts_2022["geographic type"] + " + " + damage_counts_2022["* Damage"].astype(str)
+)
+
+# Assign colors based on geographic type
+colors = {"Rural": "green", "Suburban": "orange", "Urban": "red"}
+damage_counts_2022["Bar Color"] = damage_counts_2022["geographic type"].map(colors)
+
+plt.figure(figsize=(14, 8))
+bars = plt.bar(
+    damage_counts_2022["Label"],
+    damage_counts_2022["Count"],
+    color=damage_counts_2022["Bar Color"],
+)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.5, int(yval), ha="center", va="bottom", fontsize=10)
+
+plt.title("Fire Damage Counts by Geographic Type and Damage Level (2022, Excluding No Damage)", fontsize=16)
+plt.xlabel("Geographic Type + Damage Level", fontsize=12)
+plt.ylabel("Counts", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=10)
+
+# Add a legend for the bar colors
+from matplotlib.lines import Line2D
+
+legend_elements = [
+    Line2D([0], [0], color="green", lw=6, label="Rural"),
+    Line2D([0], [0], color="orange", lw=6, label="Suburban"),
+    Line2D([0], [0], color="red", lw=6, label="Urban"),
+]
+
+plt.legend(handles=legend_elements, title="Geographic Type", loc="upper right", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+# plot of 2023 (done by Regina Hou)
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2023 data only after merging
+merged_data["Year"] = pd.to_datetime(merged_data["Incident Start Date"], errors="coerce").dt.year
+merged_data_2023 = merged_data[merged_data["Year"] == 2023]
+```
+
+# plot for 2020-2023 (done by Regina Hou)
+```{python}
+#| echo: false
+#| eval: true
+merged_data["Year"] = pd.to_datetime(merged_data["Incident Start Date"], errors="coerce").dt.year
+merged_data_total = merged_data[(merged_data["Year"] >= 2020) & (merged_data["Year"] <= 2023)]
+
+# Group data by geographic type and damage level for 2020-2023 combined and sum counts
+damage_counts_total = (
+    merged_data_total.groupby(["geographic type", "* Damage"])
+    .size()
+    .reset_index(name="Count")
+)
+```
+
+```{python}
+#| echo: false
+#| eval: true
+# Filter for 2020-2023 data and exclude "No Damage"
+merged_data_total = merged_data[
+    (merged_data["Year"] >= 2020) & 
+    (merged_data["Year"] <= 2023) &
+    (merged_data["* Damage"] != "No Damage")
+]
+
+# Group data by geographic type and damage level, and count occurrences
+damage_counts_total = (
+    merged_data_total.groupby(["geographic type", "* Damage"])
+    .size()
+    .reset_index(name="Count")
+)
+
+# Define the order of damage levels
+damage_order = [
+    "Affected (1-9%)", 
+    "Minor (10-25%)", 
+    "Major (26-50%)", 
+    "Destroyed (>50%)"
+]
+
+# Update damage levels for sorting and visualization
+damage_counts_total["* Damage"] = pd.Categorical(
+    damage_counts_total["* Damage"], categories=damage_order, ordered=True
+)
+
+# Sort the data by Geographic Type and Damage Level
+damage_counts_total = damage_counts_total.sort_values(by=["geographic type", "* Damage"])
+
+# Create a new x-axis label with rearranged categories
+damage_counts_total["Label"] = (
+    damage_counts_total["geographic type"] + " + " + damage_counts_total["* Damage"].astype(str)
+)
+
+# Assign colors based on geographic type
+colors = {"Rural": "green", "Suburban": "orange", "Urban": "red"}
+damage_counts_total["Bar Color"] = damage_counts_total["geographic type"].map(colors)
+
+plt.figure(figsize=(14, 8))
+bars = plt.bar(
+    damage_counts_total["Label"],
+    damage_counts_total["Count"],
+    color=damage_counts_total["Bar Color"],
+)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.5, int(yval), ha="center", va="bottom", fontsize=10)
+
+plt.title("Fire Damage Counts by Geographic Type and Damage Level (2020-2023 Total, Excluding No Damage)", fontsize=16)
+plt.xlabel("Geographic Type + Damage Level", fontsize=12)
+plt.ylabel("Counts", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=10)
+
+# Add a legend for the bar colors
+from matplotlib.lines import Line2D
+
+legend_elements = [
+    Line2D([0], [0], color="green", lw=6, label="Rural"),
+    Line2D([0], [0], color="orange", lw=6, label="Suburban"),
+    Line2D([0], [0], color="red", lw=6, label="Urban"),
+]
+
+plt.legend(handles=legend_elements, title="Geographic Type", loc="upper right", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+```
+
+Intro
+Wildfires are among the most destructive natural disasters in the U.S., with California experiencing the greatest impact. In 2021, the state accounted for 40% of all burned acres nationwide and had nearly two million properties at risk of wildfire damage—three times more than the next highest state. The rising frequency and severity of wildfires, driven by climate change, droughts, and urban expansion into fire-prone areas, highlight the urgent need to address wildfire risks. 
+
+Research question, approach and coding
+Our study tries to answer the question: "How does the degree of urbanization in areas affected by wildfires relate to the magnitude of property damage? This paper uses data from 2020 to 2023, which allows for analysis of seasonal changes in wildfire incidents. Using cities as a unit of analysis, we divided the cities into urban, suburban, and rural areas based on the population density. The findings of this study offer valuable guidance for tailoring wildfire prevention and response strategies to the unique needs of different regions. To answer this research question, we first cleaned and integrated our three datasets. We standardized geographic names by removing redundant text, added a "Geographic Type" column to classify cities based on their population, and merged datasets to link wildfire incidents with urbanization levels. Using Shiny App, we created dynamic visualizations and heatmaps to highlight trends and spatial patterns. We encountered a few challenges during the process. One was ensuring that the geographic classifications were accurate, because relying only on population may oversimplify the complexities of urbanization. Second, merging datasets required significant effort to align different formats and resolve inconsistencies in naming conventions. Despite these challenges, our approach provided a robust framework for analyzing wildfire impacts.
+
+Data and methodology
+We use three data sets in this research. The first one is the 2020 U.S. Census, which provides detailed population data at the city level. It allows for the classification of cities into urban, suburban, and rural categories based on population density. The second dataset is the incident data from the Cal Fire report (mapdataall.csv), which contains incident data related to wildfires. Finally, we use the Cal fire inspection data. This dataset contains the fire damage level with geographic information for us to analyze. 
+ 
+      
+
+Static plots 
+1.	Pie Chart: Geographic Breakdown of California Cities
+This chart illustrates the distribution of California cities by geographic type. Rural areas dominate, making up 57.2% of cities, followed by suburban areas at 28.9%, and urban areas, which represent only 13.9% of the total.
+2.	Bar Chart: Wildfire Frequency by Geographic Type
+This chart shows wildfire frequency in urban, suburban, and rural areas. Urban areas experience significantly more wildfires than suburban or rural regions
+3.	Bar Chart: Fire Damage Counts by Geographic Type and Damage Level (2020)
+This plot breaks down wildfire property damage in 2020 across geographic types and damage levels. Urban areas exhibit the highest counts in severe damage categories, while rural areas see minimal damage.
+4.	Bar Chart: Fire Damage Counts by Geographic Type and Damage Level (2021)
+Similar to the previous chart, this one focuses on 2021 and shows a similar pattern: urban areas experience the most significant damage levels, while suburban and rural areas see lower but noticeable impacts.
+5.	Bar Chart: Fire Damage Counts by Geographic Type and Damage Level (2022)
+Similar to the previous chart, this one focuses on 2022 and shows a similar pattern
+6.	Bar: Fire Damage Counts by Geographic Type and Damage Level (2020-2023 Total)
+Aggregating data from 2020 to 2023, this chart provides a comprehensive overview of damage counts. Urban areas again dominate the severe damage categories, with suburban areas following and rural regions experiencing the least damage overall.
+
+Shiny App
+	Our Shiny App presents a dynamic heatmap of California wildfire damage categorized by geographic type. Users can filter by damage levels and urbanization types to explore patterns interactively. For this study, we focused on the "destroyed" damage level, represented by red dots. The map reveals that "destroyed" damage in suburban areas is more geographically dispersed, while in urban areas, it is concentrated in specific high-risk locations. This visualization helps illustrate the distinct impact of wildfires across different regions.
+
+Policy implications
+To address wildfire risks effectively, we recommend that for urban areas, the government should focus resources on high-risk zones with severe damage, implementing advanced fire suppression systems and strict building codes to prevent catastrophic losses. Community awareness campaigns should educate urban residents on fire prevention, safe evacuation, and early reporting to reduce wildfire ignition and spread. For suburban areas, land use planning must prioritize vegetation management around suburban developments and regulate construction in vulnerable areas. The government should also establish local volunteer firefighting teams equipped with wildfire suppression tools to enhance community resilience. For rural areas, the government should promote fire-resistant agriculture, such as controlled grazing or fire-resistant crops to create natural barriers to mitigate fire spread.
+
+Limitations
+This research provides valuable insights into wildfire property damage across different levels of urbanization but has several limitations. First, the classification of geographic areas into rural, suburban, and urban categories based solely on population density may oversimplify the complexity of urbanization. Factors such as infrastructure, land use, and economic activity, which also influence wildfire vulnerability and damage, are not accounted for in this analysis. Second, the broad fire damage categories (e.g., "Minor" for 10–25% damage) limit the precision of analysis and resource allocation. Third, the 2020–2023 timeframe may not capture long-term wildfire trends, therefore limiting the findings' generalizability. Finally, focusing solely on property damage neglects broader wildfire impacts, such as environmental, public health, and social consequences. Future research should address these gaps for more comprehensive insights.
+
+Directions for future work
+Future work should aim to address the limitations of this study by incorporating more nuanced measures of urbanization, including infrastructure and land use, to capture a comprehensive picture of wildfire vulnerability. Expanding the analysis to include longer time frames would help identify broader trends and improve the generalizability of findings. Additionally, integrating data on the social, economic, and ecological impacts of wildfires—such as public health effects, environmental degradation, and community displacement—would provide a more holistic understanding of wildfire consequences and inform more effective, multidimensional policy strategies.
+
+Reference: 
+Heacock, D. (2022). U.S. states most impacted by wildfires. FilterBuy.com. https://filterbuy.com/resources/across-the-nation/states-impacted-by-wildfires/ 
+NASA. (2021, October 5). What’s behind California’s surge of large fires? NASA. https://earthobservatory.nasa.gov/images/148908/whats-behind-californias-surge-of-large-fires
+
+ 
+
