@@ -43,14 +43,12 @@ app_ui = ui.page_fluid(
 
 def server(input, output, session):
     def get_filtered_data():
-        # Filter data based on selected damage level
         if input.damage_level() == "All":
             filtered = heatmap_data
         else:
             filtered = heatmap_data[heatmap_data['* Damage']
                                     == input.damage_level()]
 
-        # Filter data based on selected urbanization type
         if input.urbanization() != "All":
             filtered = filtered[filtered['geographic type']
                                 == input.urbanization()]

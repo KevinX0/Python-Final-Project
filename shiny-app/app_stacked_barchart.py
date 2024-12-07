@@ -2,15 +2,11 @@ import pandas as pd
 from shiny import App, ui, render
 import matplotlib.pyplot as plt
 
-# Load the dataset
 data_path = '/Users/kevinxu/Desktop/Final Project Raw Data/merged_data.csv'
 heatmap_data = pd.read_csv(data_path)
 
-# Ensure categorical ordering
 damage_order = ["No Damage", "Affected (1-9%)", "Minor (10-25%)", "Major (26-50%)", "Destroyed (>50%)"]
 heatmap_data['* Damage'] = pd.Categorical(heatmap_data['* Damage'], categories=damage_order, ordered=True)
-
-# Define custom colors
 custom_colors = ['lightgray', 'yellowgreen', 'gold', 'orange', 'red']
 
 # Define the UI
