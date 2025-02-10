@@ -1,0 +1,123 @@
+commit acf3243a7dccd39a09c8a26d1a5d471921e51e2e
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 14:12:00 2024 -0600
+
+    Update app_stacked_barchart.py
+
+commit 2a6d17b036daf042260835c9bce4dd3811f244bb
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 14:10:57 2024 -0600
+
+    changes to shinyapp
+
+commit 56d3873690a0c0d4f3b5b6844e55b0afe986b157
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 14:06:35 2024 -0600
+
+    commit final changes of writeup
+
+commit 8c7400ae321af8b836e4bbc8f591c9106e932fa6
+Merge: 4caa4ba 83c7083
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 14:02:30 2024 -0600
+
+    Merge pull request #5 from KevinX0/Xu
+    
+    Merge pull request #4 from KevinX0/main
+
+commit 83c70832fb253ea14f325a7fd4acb8d5b3fd3136
+Merge: 3662163 4caa4ba
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 14:01:31 2024 -0600
+
+    Merge pull request #4 from KevinX0/main
+    
+    changes to final writeup
+
+commit 4caa4ba2bcdff1104019087d2518cd87247ea974
+Merge: af5a703 3662163
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:59:23 2024 -0600
+
+    Merge branch 'Xu'
+
+commit 3662163d6452834e646997bdb237747d66efb53d
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:57:35 2024 -0600
+
+    changes of writeup
+
+commit af5a70365de7b8064970e90c7937b4b6989ef5dd
+Merge: fa9436e 3909e03
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:49:27 2024 -0600
+
+    Merge pull request #3 from KevinX0/Xu
+    
+    Xu
+
+commit 3909e03e7c400547ace9d28eae06fe01859f2df9
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:49:08 2024 -0600
+
+    commit
+
+commit 87f47e6078a7b7133c105223934e7b0bb35eacf2
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:45:53 2024 -0600
+
+    uploading final writeup
+
+commit fa9436ed483af2b70b20f018b39e008f5f0d744f
+Merge: 97ed4eb b8ca3b5
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:42:32 2024 -0600
+
+    Merge pull request #2 from KevinX0/Xu
+    
+    uploading final code and writeup
+
+commit b8ca3b52a2cfa13f1ffe711baae6523653ede60f
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Dec 7 13:41:49 2024 -0600
+
+    uploading final code and writeup
+
+commit 97ed4eb42797eb76b25692ba25f752072f32faaf
+Merge: 5cca0a2 d5edd5f
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Wed Dec 4 20:11:38 2024 -0600
+
+    Merge pull request #1 from KevinX0/Xu
+    
+    add shiny app and files
+
+commit d5edd5f89f4b4d16e6128aaadb8c5c6d4452ebe4
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Wed Dec 4 20:11:07 2024 -0600
+
+    add shiny app and files
+
+commit 5cca0a26186d96df82e3bfbb19acd40fff36c3f3
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Nov 30 15:14:31 2024 -0600
+
+    Update 2020Census_DP-DHC2.csv
+
+commit 545e5eaafac5878e24b6435fc78504eef9b81c3c
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Sat Nov 30 15:11:49 2024 -0600
+
+    raw data
+
+commit c40a26ed7208e8fc996eaf6d8a7c4fb4d6009cc1
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Mon Nov 18 13:34:56 2024 -0600
+
+    Add requirements.txt file
+
+commit aac50ee2455d788aea0092c0db33c3160957a4b2
+Author: KevinX0 <164054103+KevinX0@users.noreply.github.com>
+Date:   Mon Nov 18 13:27:19 2024 -0600
+
+    Initial commit
